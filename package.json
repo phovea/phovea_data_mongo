@@ -1,0 +1,30 @@
+{
+  "name": "caleydo_data_graph",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "caleydo_server": "*"
+  },
+  "caleydo": {
+    "plugins": {
+      "python": [
+        {
+          "type": "dataset-provider",
+          "id": "dataset-graph",
+          "file": "graph"
+        },
+        {
+          "type": "dataset-specific-handler",
+          "id": "handler-graph",
+          "file": "graph",
+          "datatype": "graph",
+          "factory": "add_graph_handler"
+        }
+      ]
+    },
+    "dependencies": {
+      "python": {
+        "py2neo": ">=2.0.4"
+      }
+    }
+  }
+}
