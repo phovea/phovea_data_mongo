@@ -1,5 +1,6 @@
 from caleydo_server.util import jsonify
 from py2neo import Graph, Node, Relationship
+from caleydo_server.dataset_def import ADataSetProvider
 
 class Graph(object):
   def __init__(self):
@@ -19,15 +20,9 @@ class Graph(object):
   def asjson(self, range=None):
     pass
 
-class GraphProvider(object):
+class GraphProvider(ADataSetProvider):
   def __init__(self):
     pass
-
-  def __len__(self):
-    return 0
-
-  def __iter__(self):
-    return iter([])
 
 def create():
   return GraphProvider()
