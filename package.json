@@ -1,12 +1,12 @@
 {
-  "name": "caleydo_data_graph",
+  "name": "caleydo_data_mongo",
   "version": "0.0.1",
   "license" : "SEE LICENSE IN LICENSE",
-  "repository": "Caleydo/caleydo_data_graph",
+  "repository": "Caleydo/caleydo_data_mongo",
   "dependencies": {
   },
   "peerDependencies": {
-    "caleydo_server": "*"
+    "caleydo_graph": "*"
   },
   "caleydo": {
     "plugins": {
@@ -15,19 +15,15 @@
           "type": "dataset-provider",
           "id": "dataset-graph",
           "file": "graph"
-        },
-        {
-          "type": "dataset-specific-handler",
-          "id": "handler-graph",
-          "file": "graph",
-          "datatype": "graph",
-          "factory": "add_graph_handler"
         }
       ]
     },
     "dependencies": {
       "python": {
-        "py2neo": ">=2.0.4"
+        "pymongo": "==3.0.3"
+      },
+      "debian": {
+        "mongodb": ""
       }
     }
   },
