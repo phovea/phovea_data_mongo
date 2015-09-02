@@ -44,8 +44,8 @@ class MongoGraph(caleydo_graph.graph.Graph):
   def nodes(self, range=None):
     if self._nodes is None:
       from bson.objectid import ObjectId
-      data = self._db.graph_data.findOne(self._find_data, {'nodes': 1})
-      self._nodes = { n['id'] : caleydo_graph.graph.GraphNode(n['type'],n['id'], n.get('attrs',None)) for n in data['nodes'] }
+      data = self._db.graph_data.find_one(self._find_data, {'nodes': 1})
+      self._nodes = [ caleydo_graph.graph.GraphNode(n['type'],n['id'], n.get('attrs',None)) for n in data['nodes'] ]
 
     if range is None:
       return self._nodes
@@ -58,8 +58,8 @@ class MongoGraph(caleydo_graph.graph.Graph):
   def edges(self, range = None):
     if self._edges is None:
       from bson.objectid import ObjectId
-      data = self._db.graph_data.findOne(self._find_data, {'edges': 1})
-      self._edges = [caleydo_graph.graph.GraphEdge(n['type'],n['source'], n['target'], n.get('attrs',None)) for n in data['edges']]
+      data = self._db.graph_data.find_one(self._find_data, {'edges': 1})
+      self._edges = [ caleydo_graph.graph.GraphEdge(n['type'],n['source'], n['target'], n.get('attrs',None)) for n in data['edges'] ]
 
     if range is None:
       return self._edges
@@ -76,20 +76,65 @@ class MongoGraph(caleydo_graph.graph.Graph):
   def add_node(self, data):
     self._db.graph.update(self._find_me, { '$inc': dict(nnodes=1) })
     self._db.graph_data.update(self._find_data, { '$push': dict(nodes=data) })
+    self._entry['nnodes'] += 1
+    if self._nodes:
+      self._nodes.append(caleydo_graph.graph.GraphNode(data['type'],data['id'], data.get('attrs',None)))
     return True
 
   def remove_node(self, id):
-    self._db.graph.update(self._find_me, { '$inc': dict(nnodes=-1) })
-    self._db.graph_data.update(self._find_data, { '$pull': dict(nodes=dict(id=id)) })
+    if self._nodes:
+      n = self.get_node(id)
+      self._nodes.remove(n)
+    self._entry['nnodes'] -= 1
+    #remove node and all associated edges
+    self._db.graph_data.update(self._find_data, {'$pull': dict(nodes=dict(id=id),
+                                                               edges={'$or': [dict(source=id), dict(target=id)]})})
+    if self._edges:
+      self._edges = [e for e in self._edges if e.source != id and e.target != id]
+      self._entry['nedges'] = len(self._edges)
+    else:
+      #use a query to compute the length
+      self._entry['nedges'] = self._db.graph_data.find_one(self._find_data, { 'nedges': {'$size' : 'edges'}})['nedges']
+    self._db.graph.update(self._find_me, { '$inc': dict(nnodes=-1) , '$set': dict(nedges=self._entry['nedges'])})
+
     return True
+
+  def get_node(self, id):
+    for n in self.nodes():
+      if n.id == id:
+        return n
+    return None
+
+  def get_edge(self, id):
+    for n in self.edges():
+      if n.id == id:
+        return n
+    return None
+
+  def clear(self):
+    self._db.graph.update(self._find_me, { '$set': dict(nnodes=0,nedges=0) })
+    self._db.graph_data.update(self._find_data, { '$set': dict(nodes=[],edges=[]) })
+    self._nodes = None
+    self._edges = None
+    self._entry['nnodes'] = 0
+    self._entry['nedges'] = 0
+    return True
+
 
   def add_edge(self, data):
     self._db.graph.update(self._find_me, { '$inc': dict(nedges=1) })
     self._db.graph_data.update(self._find_data, { '$push': dict(edges=data) })
+    self._entry['nedges'] += 1
+    if self._edges:
+      self._edges.append(caleydo_graph.graph.GraphEdge(data['type'],data['source'], data['target'], data.get('attrs',None)))
     return True
 
   def remove_edge(self, id):
     source,target = caleydo_graph.graph.GraphEdge.split_id(id)
+    if self._edges:
+      n = self.get_edge(id)
+      self._edges.remove(n)
+    self._entry['nedges'] -= 1
     self._db.graph.update(self._find_me, { '$inc': dict(nedges=-1) })
     self._db.graph_data.update(self._find_data, { '$pull': dict(edges=dict(source=source,target=target)) })
     return True
@@ -97,7 +142,13 @@ class MongoGraph(caleydo_graph.graph.Graph):
   def remove(self):
     self._db.graph.remove(self._find_me)
     self._db.graph_data.remove(self._find_data)
+    self._nodes = None
+    self._edges = None
+    self._entry['nnodes'] = 0
+    self._entry['nedges'] = 0
     return True
+
+
 
 class GraphProvider(ADataSetProvider):
   def __init__(self):
