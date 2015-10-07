@@ -24,6 +24,9 @@
       },
       "debian": {
         "mongodb": ""
+      },
+      "redhat": {
+        "mongodb": ""
       }
     }
   },
