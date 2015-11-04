@@ -159,7 +159,9 @@ class GraphProvider(ADataSetProvider):
     self.client = MongoClient(c.host, c.port)
     self.db = self.client.graph
 
-    self.entries = MongoGraph.list(self.db)
+  @property
+  def entries(self):
+    return MongoGraph.list(self.db)
 
   def __len__(self):
     return len(self.entries)
@@ -170,7 +172,7 @@ class GraphProvider(ADataSetProvider):
   def remove(self, entry):
     if isinstance(entry, MongoGraph) and entry in self.entries and entry.remove():
       self.entries.remove(entry)
-      return True
+    return True
     return False
 
   def upload(self, data, files, id=None):
@@ -186,8 +188,6 @@ class GraphProvider(ADataSetProvider):
       return None
 
     graph = MongoGraph.create(parsed, user, id, self.db)
-
-    self.entries.append(graph)
 
     return graph
 
