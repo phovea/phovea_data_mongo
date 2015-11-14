@@ -59,7 +59,7 @@ class MongoGraph(caleydo_graph.graph.Graph):
     if self._edges is None:
       from bson.objectid import ObjectId
       data = self._db.graph_data.find_one(self._find_data, {'edges': 1})
-      self._edges = [ caleydo_graph.graph.GraphEdge(n['type'],n['source'], n['target'], n.get('attrs',None)) for n in data['edges'] ]
+      self._edges = [ caleydo_graph.graph.GraphEdge(n['type'],n['id'], n['source'], n['target'], n.get('attrs',None)) for n in data['edges'] ]
 
     if range is None:
       return self._edges
@@ -172,7 +172,7 @@ class GraphProvider(ADataSetProvider):
   def remove(self, entry):
     if isinstance(entry, MongoGraph) and entry in self.entries and entry.remove():
       self.entries.remove(entry)
-    return True
+      return True
     return False
 
   def upload(self, data, files, id=None):
