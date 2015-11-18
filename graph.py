@@ -23,7 +23,7 @@ class MongoGraph(caleydo_graph.graph.Graph):
     entry = dict(
       name=data['name'],
       description=data.get('description', ''),
-      creator=user.name,
+      creator='unknown' if user.is_anonymous else user.name,
       nnodes=len(data['nodes']),
       nedges=len(data['edges']),
       ts=datetime.datetime.utcnow())
@@ -126,7 +126,7 @@ class MongoGraph(caleydo_graph.graph.Graph):
     self._db.graph_data.update(self._find_data, { '$push': dict(edges=data) })
     self._entry['nedges'] += 1
     if self._edges:
-      self._edges.append(caleydo_graph.graph.GraphEdge(data['type'],data['source'], data['target'], data.get('attrs',None)))
+      self._edges.append(caleydo_graph.graph.GraphEdge(data['type'],data['id'],data['source'], data['target'], data.get('attrs',None)))
     return True
 
   def remove_edge(self, id):
