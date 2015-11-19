@@ -68,7 +68,7 @@ class MongoGraph(caleydo_graph.graph.Graph):
     return self._edges[range.asslice()]
 
   @property
-  def num_edges(self):
+  def nedges(self):
     return self._entry['nedges']
 
   def to_description(self):
