@@ -3,7 +3,7 @@ import caleydo_graph.graph
 
 class MongoGraph(caleydo_graph.graph.Graph):
   def __init__(self, entry, db):
-    super(MongoGraph, self).__init__(entry['name'], 'mongodb', entry.get('id', None))
+    super(MongoGraph, self).__init__(entry['name'], 'mongodb', entry.get('id', None), entry.get('attrs',None))
     self._entry = entry
     self._db = db
     from bson.objectid import ObjectId
@@ -26,7 +26,9 @@ class MongoGraph(caleydo_graph.graph.Graph):
       creator='unknown' if user.is_anonymous else user.name,
       nnodes=len(data['nodes']),
       nedges=len(data['edges']),
+      attrs=data.get('attrs',{}),
       ts=datetime.datetime.utcnow())
+
     if id is not None:
       entry['id'] = id
 
@@ -148,7 +150,9 @@ class MongoGraph(caleydo_graph.graph.Graph):
     self._entry['nedges'] = 0
     return True
 
-
+def _generate_id(basename):
+  import caleydo_server.util
+  return caleydo_server.util.fix_id(basename + ' ' + caleydo_server.util.random_id(5))
 
 class GraphProvider(ADataSetProvider):
   def __init__(self):
@@ -186,6 +190,9 @@ class GraphProvider(ADataSetProvider):
 
     if parsed is None:
       return None
+
+    if id is None:
+      id = _generate_id(parsed.get('name',''))
 
     graph = MongoGraph.create(parsed, user, id, self.db)
 
