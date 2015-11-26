@@ -135,13 +135,12 @@ class MongoGraph(caleydo_graph.graph.Graph):
     return True
 
   def remove_edge(self, id):
-    source,target = caleydo_graph.graph.GraphEdge.split_id(id)
     if self._edges:
       n = self.get_edge(id)
       self._edges.remove(n)
     self._entry['nedges'] -= 1
     self._db.graph.update(self._find_me, { '$inc': dict(nedges=-1) })
-    self._db.graph_data.update(self._find_data, { '$pull': dict(edges=dict(source=source,target=target)) })
+    self._db.graph_data.update(self._find_data, { '$pull': dict(edges=dict(id=id)) })
     return True
 
   def remove(self):
