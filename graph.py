@@ -89,14 +89,17 @@ class MongoGraph(caleydo_graph.graph.Graph):
       self._nodes.remove(n)
     self._entry['nnodes'] -= 1
     #remove node and all associated edges
-    self._db.graph_data.update(self._find_data, {'$pull': dict(nodes=dict(id=id),
-                                                               edges={'$or': [dict(source=id), dict(target=id)]})})
+    x = self._db.graph_data.update(self._find_data, {'$pull': dict(nodes=dict(id=id))}, multi=False)
+
+    y = self._db.graph_data.update(self._find_data, {'$pull': dict(edges={'$or': [dict(source=id), dict(target=id)]})}, multi=True)
+
+
     if self._edges:
       self._edges = [e for e in self._edges if e.source != id and e.target != id]
       self._entry['nedges'] = len(self._edges)
     else:
       #use a query to compute the length
-      self._entry['nedges'] = self._db.graph_data.find_one(self._find_data, { 'nedges': {'$size' : 'edges'}})['nedges']
+      self._entry['nedges'] = len(self._db.graph_data.find_one(self._find_data, {'edges': 1})['edges'])
     self._db.graph.update(self._find_me, { '$inc': dict(nnodes=-1) , '$set': dict(nedges=self._entry['nedges'])})
 
     return True
