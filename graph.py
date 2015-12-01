@@ -19,6 +19,15 @@ class MongoGraph(caleydo_graph.graph.Graph):
 
   @staticmethod
   def create(data, user, id, db):
+    #if 'clone_from' in data:
+    #  #clone from an existing graph
+    #  from bson.objectid import ObjectId
+    #  other_desc = db.graph.find_one(dict(_id=data['clone_from']))
+    #  other_data = db.graph_data.find_one(dict(_id=ObjectId(other_desc['refid'])))
+    #else
+    #  other_desc = dict()
+    #  other_data = dict()
+
     import datetime
     entry = dict(
       name=data['name'],
@@ -40,6 +49,8 @@ class MongoGraph(caleydo_graph.graph.Graph):
 
     entry['refid'] = str(data_id)
     db.graph.insert_one(entry)
+
+
 
     return MongoGraph(entry, db)
 
