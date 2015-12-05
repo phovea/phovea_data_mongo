@@ -212,3 +212,8 @@ class GraphProvider(ADataSetProvider):
 
 def create():
   return GraphProvider()
+
+#CLEAR DB:
+#bash: mongo:
+# use graph;
+# db.dropDatabase();
