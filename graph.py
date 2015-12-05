@@ -187,8 +187,7 @@ class GraphProvider(ADataSetProvider):
     return iter(self.entries)
 
   def remove(self, entry):
-    if isinstance(entry, MongoGraph) and entry in self.entries and entry.remove():
-      self.entries.remove(entry)
+    if isinstance(entry, MongoGraph) and entry.remove():
       return True
     return False
 
