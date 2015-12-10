@@ -94,6 +94,20 @@ class MongoGraph(caleydo_graph.graph.Graph):
       self._nodes.append(caleydo_graph.graph.GraphNode(data['type'],data['id'], data.get('attrs',None)))
     return True
 
+  def update_node(self, data):
+    q = self._find_data.copy()
+    q['nodes.id'] = data['id']
+    self._db.graph_data.update(q, { '$set': { 'nodes.$.attrs' : data.get('attrs',{}) } })
+    #update({ "item.two" : "24" },
+    #   { $set : { "item.$.two" : "" }}, false, true);
+    if self._nodes:
+      for n in self._nodes:
+        if n.id == id:
+          n.attrs = data.get('attrs',{})
+          break
+
+    return True
+
   def remove_node(self, id):
     if self._nodes:
       n = self.get_node(id)
@@ -144,6 +158,21 @@ class MongoGraph(caleydo_graph.graph.Graph):
     if self._edges:
       self._edges.append(caleydo_graph.graph.GraphEdge(data['type'],data['id'],data['source'], data['target'], data.get('attrs',None)))
     return True
+
+  def update_edge(self, data):
+    q = self._find_data.copy()
+    q['edges.id'] = data['id']
+    self._db.graph_data.update(q, { '$set': { 'edges.$.attrs' : data.get('attrs',{}) } })
+    #update({ "item.two" : "24" },
+    #   { $set : { "item.$.two" : "" }}, false, true);
+    if self._edges:
+      for n in self._edges:
+        if n.id == id:
+          n.attrs = data.get('attrs',{})
+          break
+
+    return True
+
 
   def remove_edge(self, id):
     if self._edges:
