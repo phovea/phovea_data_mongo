@@ -28,6 +28,9 @@
       "redhat": {
         "mongodb": ""
       }
+    },
+    "scripts": {
+      "pre_start": "sudo service mongodb start"
     }
   },
   "publishConfig": {
