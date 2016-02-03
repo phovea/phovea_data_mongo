@@ -26,11 +26,12 @@
         "mongodb": ""
       },
       "redhat": {
-        "mongodb": ""
+        "mongodb-server": ""
       }
     },
     "scripts": {
-      "pre_start": "sudo service mongodb start"
+      "pre_start": "sudo service mongodb start",
+      "pre_start_redhat": "sudo service mongod start"
     }
   },
   "publishConfig": {
