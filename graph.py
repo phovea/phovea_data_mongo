@@ -1,7 +1,7 @@
 from caleydo_server.dataset_def import ADataSetProvider
-import caleydo_graph.graph
+import caleydo_server.graph
 
-class MongoGraph(caleydo_graph.graph.Graph):
+class MongoGraph(caleydo_server.graph.Graph):
   def __init__(self, entry, db):
     super(MongoGraph, self).__init__(entry['name'], 'mongodb', entry.get('id', None), entry.get('attrs',None))
     self._entry = entry
@@ -58,7 +58,7 @@ class MongoGraph(caleydo_graph.graph.Graph):
     if self._nodes is None:
       from bson.objectid import ObjectId
       data = self._db.graph_data.find_one(self._find_data, {'nodes': 1})
-      self._nodes = [ caleydo_graph.graph.GraphNode(n['type'],n['id'], n.get('attrs',None)) for n in data['nodes'] ]
+      self._nodes = [ caleydo_server.graph.GraphNode(n['type'],n['id'], n.get('attrs',None)) for n in data['nodes'] ]
 
     if range is None:
       return self._nodes
@@ -72,7 +72,7 @@ class MongoGraph(caleydo_graph.graph.Graph):
     if self._edges is None:
       from bson.objectid import ObjectId
       data = self._db.graph_data.find_one(self._find_data, {'edges': 1})
-      self._edges = [ caleydo_graph.graph.GraphEdge(n['type'],n['id'], n['source'], n['target'], n.get('attrs',None)) for n in data['edges'] ]
+      self._edges = [ caleydo_server.graph.GraphEdge(n['type'],n['id'], n['source'], n['target'], n.get('attrs',None)) for n in data['edges'] ]
 
     if range is None:
       return self._edges
@@ -91,7 +91,7 @@ class MongoGraph(caleydo_graph.graph.Graph):
     self._db.graph_data.update(self._find_data, { '$push': dict(nodes=data) })
     self._entry['nnodes'] += 1
     if self._nodes:
-      self._nodes.append(caleydo_graph.graph.GraphNode(data['type'],data['id'], data.get('attrs',None)))
+      self._nodes.append(caleydo_server.graph.GraphNode(data['type'],data['id'], data.get('attrs',None)))
     return True
 
   def update_node(self, data):
@@ -156,7 +156,7 @@ class MongoGraph(caleydo_graph.graph.Graph):
     self._db.graph_data.update(self._find_data, { '$push': dict(edges=data) })
     self._entry['nedges'] += 1
     if self._edges:
-      self._edges.append(caleydo_graph.graph.GraphEdge(data['type'],data['id'],data['source'], data['target'], data.get('attrs',None)))
+      self._edges.append(caleydo_server.graph.GraphEdge(data['type'],data['id'],data['source'], data['target'], data.get('attrs',None)))
     return True
 
   def update_edge(self, data):
@@ -227,7 +227,7 @@ class GraphProvider(ADataSetProvider):
     m = manager()
     user = m.current_user
 
-    parsed = caleydo_graph.graph.parse(data, files)
+    parsed = caleydo_server.graph.parse(data, files)
 
     if parsed is None:
       return None
