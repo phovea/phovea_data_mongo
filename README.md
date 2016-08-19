@@ -3,6 +3,22 @@ Caleydo Data MongoDB
 
 Data provider plugin for loading graph data stored in a [MongoDB](https://www.mongodb.com/).
 
+## Administrating MongoDB from your host machine
+
+Follow this steps if you want to administrate the MongoDB instance that is installed inside the virtual machine (using Vagrant)
+
+1. Download any MongoDB Administration tool (e.g., [RoboMongo](http://www.robomongo.org))
+2. Create a new connection, save it, and connect
+```
+address: localhost
+port: 27017
+activate use ssh tunnel
+SSH address: 127.0.0.1
+SSH port: 2222
+SSH user name: vagrant
+SSH password: vagrant
+```
+
 *****
 
 <a href="https://caleydo.org"><img src="http://caleydo.org/assets/images/logos/caleydo.svg" align="left" width="200px" hspace="10" vspace="6"></a>
