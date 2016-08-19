@@ -84,6 +84,12 @@ class MongoGraph(caleydo_server.graph.Graph):
 
   def to_description(self):
     r = super(MongoGraph, self).to_description()
+
+    if self._entry is not None:
+      r['description'] = self._entry['description']
+      r['creator'] = self._entry['creator']
+      r['ts'] = self._entry['ts']
+
     return r
 
   def add_node(self, data):
