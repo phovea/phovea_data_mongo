@@ -6,7 +6,7 @@ Data provider plugin for loading (graph) data stored in a [MongoDB](https://www.
 Installation
 ------------
 ```bash
-./manage.sh clone Caleydo/caleydo_data_hdf
+./manage.sh clone Caleydo/caleydo_data_mongo
 ./manage.sh resolve
 ```
 
@@ -15,7 +15,7 @@ If you want this plugin to be dynamically resolved as part of another applicatio
 ```bash
 {
   "peerDependencies": {
-    "caleydo_data_hdf": "*"
+    "caleydo_data_mongo": "*"
   }
 }
 ```
