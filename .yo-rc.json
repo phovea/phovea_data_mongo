@@ -4,7 +4,7 @@
     "name": "phovea_data_mongo",
     "author": "The Caleydo Team",
     "githubAccount": "phovea",
-    "slibraries": [],
+    "slibraries": ["mongodb"],
     "smodules": [
       "phovea_server"
     ],
