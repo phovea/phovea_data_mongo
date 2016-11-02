@@ -1,7 +1,7 @@
-from caleydo_server.dataset_def import ADataSetProvider
-import caleydo_server.graph
+from phovea_server.dataset_def import ADataSetProvider
+import phovea_server.graph
 
-class MongoGraph(caleydo_server.graph.Graph):
+class MongoGraph(phovea_server.graph.Graph):
   def __init__(self, entry, db):
     super(MongoGraph, self).__init__(entry['name'], 'mongodb', entry.get('id', None), entry.get('attrs',None))
     self._entry = entry
@@ -58,7 +58,7 @@ class MongoGraph(caleydo_server.graph.Graph):
     if self._nodes is None:
       from bson.objectid import ObjectId
       data = self._db.graph_data.find_one(self._find_data, {'nodes': 1})
-      self._nodes = [ caleydo_server.graph.GraphNode(n['type'],n['id'], n.get('attrs',None)) for n in data['nodes'] ]
+      self._nodes = [ phovea_server.graph.GraphNode(n['type'],n['id'], n.get('attrs',None)) for n in data['nodes'] ]
 
     if range is None:
       return self._nodes
@@ -72,7 +72,7 @@ class MongoGraph(caleydo_server.graph.Graph):
     if self._edges is None:
       from bson.objectid import ObjectId
       data = self._db.graph_data.find_one(self._find_data, {'edges': 1})
-      self._edges = [ caleydo_server.graph.GraphEdge(n['type'],n['id'], n['source'], n['target'], n.get('attrs',None)) for n in data['edges'] ]
+      self._edges = [ phovea_server.graph.GraphEdge(n['type'],n['id'], n['source'], n['target'], n.get('attrs',None)) for n in data['edges'] ]
 
     if range is None:
       return self._edges
@@ -97,7 +97,7 @@ class MongoGraph(caleydo_server.graph.Graph):
     self._db.graph_data.update(self._find_data, { '$push': dict(nodes=data) })
     self._entry['nnodes'] += 1
     if self._nodes:
-      self._nodes.append(caleydo_server.graph.GraphNode(data['type'],data['id'], data.get('attrs',None)))
+      self._nodes.append(phovea_server.graph.GraphNode(data['type'],data['id'], data.get('attrs',None)))
     return True
 
   def update_node(self, data):
@@ -162,7 +162,7 @@ class MongoGraph(caleydo_server.graph.Graph):
     self._db.graph_data.update(self._find_data, { '$push': dict(edges=data) })
     self._entry['nedges'] += 1
     if self._edges:
-      self._edges.append(caleydo_server.graph.GraphEdge(data['type'],data['id'],data['source'], data['target'], data.get('attrs',None)))
+      self._edges.append(phovea_server.graph.GraphEdge(data['type'],data['id'],data['source'], data['target'], data.get('attrs',None)))
     return True
 
   def update_edge(self, data):
@@ -199,13 +199,13 @@ class MongoGraph(caleydo_server.graph.Graph):
     return True
 
 def _generate_id(basename):
-  import caleydo_server.util
-  return caleydo_server.util.fix_id(basename + ' ' + caleydo_server.util.random_id(5))
+  import phovea_server.util
+  return phovea_server.util.fix_id(basename + ' ' + phovea_server.util.random_id(5))
 
 class GraphProvider(ADataSetProvider):
   def __init__(self):
-    import caleydo_server.config
-    c = caleydo_server.config.view('caleydo_data_mongo')
+    import phovea_server.config
+    c = phovea_server.config.view('phovea_data_mongo')
 
     from pymongo import MongoClient
     self.client = MongoClient(c.host, c.port)
@@ -229,11 +229,11 @@ class GraphProvider(ADataSetProvider):
   def upload(self, data, files, id=None):
     if not data.get('type','unknown') == 'graph':
       return None #can't handle
-    from caleydo_server.security import manager
+    from phovea_server.security import manager
     m = manager()
     user = m.current_user
 
-    parsed = caleydo_server.graph.parse(data, files)
+    parsed = phovea_server.graph.parse(data, files)
 
     if parsed is None:
       return None
