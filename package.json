@@ -1,43 +1,37 @@
 {
-  "name": "caleydo_data_mongo",
+  "files": [
+    "src",
+    "__init__.py",
+    "__main__.py",
+    "build",
+    "requirements.txt",
+    "requirements_dev.txt",
+    "debian_packages.txt",
+    "redhat_packages.txt",
+    "assets"
+  ],
+  "scripts": {
+    "check": "flake8",
+    "pretest": "npm run check",
+    "test": "python setup.py test",
+    "predist": "npm run test",
+    "dist": "python setup.py bdist_egg"
+  },
+  "name": "phovea_data_mongo",
   "description": "Data provider plugin for loading graph data stored in a MongoDB.",
+  "homepage": "https://phovea.caleydo.org",
   "version": "0.0.1",
-  "license" : "SEE LICENSE IN LICENSE",
-  "repository": "Caleydo/caleydo_data_mongo",
-  "dependencies": {
+  "author": {
+    "name": "The Caleydo Team",
+    "email": "contact@caleydo.org",
+    "url": "https://caleydo.org"
   },
-  "peerDependencies": {
-    "caleydo_server": "*"
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/phovea/phovea_data_mongo/issues"
   },
-  "caleydo": {
-    "type": "plugin",
-    "category": "python_data",
-    "plugins": {
-      "python": [
-        {
-          "type": "dataset-provider",
-          "id": "dataset-graph",
-          "file": "graph"
-        }
-      ]
-    },
-    "dependencies": {
-      "python": {
-        "pymongo": "==3.0.3"
-      },
-      "debian": {
-        "mongodb": ""
-      },
-      "redhat": {
-        "mongodb-org-server": ""
-      }
-    },
-    "scripts": {
-      "pre_start": "sudo service mongodb start",
-      "pre_start_redhat": "sudo service mongod start"
-    }
-  },
-  "publishConfig": {
-    "registry": "http://registry.caleydo.org/"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phovea/phovea_data_mongo.git"
   }
 }

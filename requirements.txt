@@ -1,0 +1,1 @@
+-e git+https://github.com/sgratzl/phovea_server.git#egg=phovea_server
