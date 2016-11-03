@@ -4,10 +4,6 @@
     "name": "phovea_data_mongo",
     "author": "The Caleydo Team",
     "githubAccount": "phovea",
-    "slibraries": ["mongodb"],
-    "smodules": [
-      "phovea_server"
-    ],
     "sextensions": [
       {
         "type": "dataset-provider",
@@ -16,6 +12,17 @@
         "extras": {}
       }
     ],
-    "today": "Wed, 02 Nov 2016 16:06:58 GMT"
+    "today": "Wed, 02 Nov 2016 16:06:58 GMT",
+    "modules": [
+      "phovea_server"
+    ],
+    "libraries": [
+      "mongodb"
+    ],
+    "unknown": {
+      "requirements": [],
+      "debianPackages": [],
+      "redhatPackages": []
+    }
   }
 }

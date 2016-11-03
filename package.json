@@ -1,6 +1,6 @@
 {
   "files": [
-    "src",
+    "phovea_data_mongo",
     "__init__.py",
     "__main__.py",
     "build",
