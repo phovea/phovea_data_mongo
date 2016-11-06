@@ -1,0 +1,28 @@
+{
+  "generator-phovea": {
+    "type": "server",
+    "name": "phovea_data_mongo",
+    "author": "The Caleydo Team",
+    "githubAccount": "phovea",
+    "sextensions": [
+      {
+        "type": "dataset-provider",
+        "id": "dataset-graph",
+        "module": "graph",
+        "extras": {}
+      }
+    ],
+    "today": "Wed, 02 Nov 2016 16:06:58 GMT",
+    "modules": [
+      "phovea_server"
+    ],
+    "libraries": [
+      "mongodb"
+    ],
+    "unknown": {
+      "requirements": [],
+      "debianPackages": [],
+      "redhatPackages": []
+    }
+  }
+}
