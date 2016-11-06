@@ -10,7 +10,7 @@ def phovea(registry):
   register extension points
   :param registry:
   """
-  registry.append('dataset-provider','dataset-graph','phovea_data_mongo.graph', {})
+  registry.append('dataset-provider', 'dataset-graph', 'phovea_data_mongo.graph', {})
   pass
 
 

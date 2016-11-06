@@ -1,9 +1,10 @@
 from phovea_server.dataset_def import ADataSetProvider
 import phovea_server.graph
 
+
 class MongoGraph(phovea_server.graph.Graph):
   def __init__(self, entry, db):
-    super(MongoGraph, self).__init__(entry['name'], 'mongodb', entry.get('id', None), entry.get('attrs',None))
+    super(MongoGraph, self).__init__(entry['name'], 'mongodb', entry.get('id', None), entry.get('attrs', None))
     self._entry = entry
     self._db = db
     from bson.objectid import ObjectId
@@ -15,50 +16,47 @@ class MongoGraph(phovea_server.graph.Graph):
 
   @staticmethod
   def list(db):
-    return [ MongoGraph(entry, db) for entry in db.graph.find()]
+    return [MongoGraph(entry, db) for entry in db.graph.find()]
 
   @staticmethod
   def create(data, user, id, db):
-    #if 'clone_from' in data:
+    # if 'clone_from' in data:
     #  #clone from an existing graph
     #  from bson.objectid import ObjectId
     #  other_desc = db.graph.find_one(dict(_id=data['clone_from']))
     #  other_data = db.graph_data.find_one(dict(_id=ObjectId(other_desc['refid'])))
-    #else
+    # else
     #  other_desc = dict()
     #  other_data = dict()
 
     import datetime
     entry = dict(
-      name=data['name'],
-      description=data.get('description', ''),
-      creator='unknown' if user.is_anonymous else user.name,
-      nnodes=len(data['nodes']),
-      nedges=len(data['edges']),
-      attrs=data.get('attrs',{}),
-      ts=datetime.datetime.utcnow())
+        name=data['name'],
+        description=data.get('description', ''),
+        creator='unknown' if user.is_anonymous else user.name,
+        nnodes=len(data['nodes']),
+        nedges=len(data['edges']),
+        attrs=data.get('attrs', {}),
+        ts=datetime.datetime.utcnow())
 
     if id is not None:
       entry['id'] = id
 
     data_entry = dict(
-      nodes = data['nodes'],
-      edges = data['edges']
+        nodes=data['nodes'],
+        edges=data['edges']
     )
     data_id = db.graph_data.insert_one(data_entry).inserted_id
 
     entry['refid'] = str(data_id)
     db.graph.insert_one(entry)
 
-
-
     return MongoGraph(entry, db)
 
   def nodes(self, range=None):
     if self._nodes is None:
-      from bson.objectid import ObjectId
       data = self._db.graph_data.find_one(self._find_data, {'nodes': 1})
-      self._nodes = [ phovea_server.graph.GraphNode(n['type'],n['id'], n.get('attrs',None)) for n in data['nodes'] ]
+      self._nodes = [phovea_server.graph.GraphNode(n['type'], n['id'], n.get('attrs', None)) for n in data['nodes']]
 
     if range is None:
       return self._nodes
@@ -68,11 +66,11 @@ class MongoGraph(phovea_server.graph.Graph):
   def nnodes(self):
     return self._entry['nnodes']
 
-  def edges(self, range = None):
+  def edges(self, range=None):
     if self._edges is None:
-      from bson.objectid import ObjectId
       data = self._db.graph_data.find_one(self._find_data, {'edges': 1})
-      self._edges = [ phovea_server.graph.GraphEdge(n['type'],n['id'], n['source'], n['target'], n.get('attrs',None)) for n in data['edges'] ]
+      self._edges = [phovea_server.graph.GraphEdge(n['type'], n['id'], n['source'], n['target'], n.get('attrs', None))
+                     for n in data['edges']]
 
     if range is None:
       return self._edges
@@ -93,23 +91,23 @@ class MongoGraph(phovea_server.graph.Graph):
     return r
 
   def add_node(self, data):
-    self._db.graph.update(self._find_me, { '$inc': dict(nnodes=1) })
-    self._db.graph_data.update(self._find_data, { '$push': dict(nodes=data) })
+    self._db.graph.update(self._find_me, {'$inc': dict(nnodes=1)})
+    self._db.graph_data.update(self._find_data, {'$push': dict(nodes=data)})
     self._entry['nnodes'] += 1
     if self._nodes:
-      self._nodes.append(phovea_server.graph.GraphNode(data['type'],data['id'], data.get('attrs',None)))
+      self._nodes.append(phovea_server.graph.GraphNode(data['type'], data['id'], data.get('attrs', None)))
     return True
 
   def update_node(self, data):
     q = self._find_data.copy()
     q['nodes.id'] = data['id']
-    self._db.graph_data.update(q, { '$set': { 'nodes.$.attrs' : data.get('attrs',{}) } })
-    #update({ "item.two" : "24" },
+    self._db.graph_data.update(q, {'$set': {'nodes.$.attrs': data.get('attrs', {})}})
+    # update({ "item.two" : "24" },
     #   { $set : { "item.$.two" : "" }}, false, true);
     if self._nodes:
       for n in self._nodes:
         if n.id == id:
-          n.attrs = data.get('attrs',{})
+          n.attrs = data.get('attrs', {})
           break
 
     return True
@@ -119,19 +117,18 @@ class MongoGraph(phovea_server.graph.Graph):
       n = self.get_node(id)
       self._nodes.remove(n)
     self._entry['nnodes'] -= 1
-    #remove node and all associated edges
-    x = self._db.graph_data.update(self._find_data, {'$pull': dict(nodes=dict(id=id))}, multi=False)
+    # remove node and all associated edges
+    self._db.graph_data.update(self._find_data, {'$pull': dict(nodes=dict(id=id))}, multi=False)
 
-    y = self._db.graph_data.update(self._find_data, {'$pull': dict(edges={'$or': [dict(source=id), dict(target=id)]})}, multi=True)
-
+    self._db.graph_data.update(self._find_data, {'$pull': dict(edges={'$or': [dict(source=id), dict(target=id)]})}, multi=True)
 
     if self._edges:
       self._edges = [e for e in self._edges if e.source != id and e.target != id]
       self._entry['nedges'] = len(self._edges)
     else:
-      #use a query to compute the length
+      # use a query to compute the length
       self._entry['nedges'] = len(self._db.graph_data.find_one(self._find_data, {'edges': 1})['edges'])
-    self._db.graph.update(self._find_me, { '$inc': dict(nnodes=-1) , '$set': dict(nedges=self._entry['nedges'])})
+    self._db.graph.update(self._find_me, {'$inc': dict(nnodes=-1), '$set': dict(nedges=self._entry['nedges'])})
 
     return True
 
@@ -148,45 +145,44 @@ class MongoGraph(phovea_server.graph.Graph):
     return None
 
   def clear(self):
-    self._db.graph.update(self._find_me, { '$set': dict(nnodes=0,nedges=0) })
-    self._db.graph_data.update(self._find_data, { '$set': dict(nodes=[],edges=[]) })
+    self._db.graph.update(self._find_me, {'$set': dict(nnodes=0, nedges=0)})
+    self._db.graph_data.update(self._find_data, {'$set': dict(nodes=[], edges=[])})
     self._nodes = None
     self._edges = None
     self._entry['nnodes'] = 0
     self._entry['nedges'] = 0
     return True
 
-
   def add_edge(self, data):
-    self._db.graph.update(self._find_me, { '$inc': dict(nedges=1) })
-    self._db.graph_data.update(self._find_data, { '$push': dict(edges=data) })
+    self._db.graph.update(self._find_me, {'$inc': dict(nedges=1)})
+    self._db.graph_data.update(self._find_data, {'$push': dict(edges=data)})
     self._entry['nedges'] += 1
     if self._edges:
-      self._edges.append(phovea_server.graph.GraphEdge(data['type'],data['id'],data['source'], data['target'], data.get('attrs',None)))
+      self._edges.append(phovea_server.graph.GraphEdge(data['type'], data['id'], data['source'], data['target'],
+                                                       data.get('attrs', None)))
     return True
 
   def update_edge(self, data):
     q = self._find_data.copy()
     q['edges.id'] = data['id']
-    self._db.graph_data.update(q, { '$set': { 'edges.$.attrs' : data.get('attrs',{}) } })
-    #update({ "item.two" : "24" },
+    self._db.graph_data.update(q, {'$set': {'edges.$.attrs': data.get('attrs', {})}})
+    # update({ "item.two" : "24" },
     #   { $set : { "item.$.two" : "" }}, false, true);
     if self._edges:
       for n in self._edges:
         if n.id == id:
-          n.attrs = data.get('attrs',{})
+          n.attrs = data.get('attrs', {})
           break
 
     return True
-
 
   def remove_edge(self, id):
     if self._edges:
       n = self.get_edge(id)
       self._edges.remove(n)
     self._entry['nedges'] -= 1
-    self._db.graph.update(self._find_me, { '$inc': dict(nedges=-1) })
-    self._db.graph_data.update(self._find_data, { '$pull': dict(edges=dict(id=id)) })
+    self._db.graph.update(self._find_me, {'$inc': dict(nedges=-1)})
+    self._db.graph_data.update(self._find_data, {'$pull': dict(edges=dict(id=id))})
     return True
 
   def remove(self):
@@ -198,9 +194,11 @@ class MongoGraph(phovea_server.graph.Graph):
     self._entry['nedges'] = 0
     return True
 
+
 def _generate_id(basename):
   import phovea_server.util
   return phovea_server.util.fix_id(basename + ' ' + phovea_server.util.random_id(5))
+
 
 class GraphProvider(ADataSetProvider):
   def __init__(self):
@@ -227,8 +225,8 @@ class GraphProvider(ADataSetProvider):
     return False
 
   def upload(self, data, files, id=None):
-    if not data.get('type','unknown') == 'graph':
-      return None #can't handle
+    if not data.get('type', 'unknown') == 'graph':
+      return None  # can't handle
     from phovea_server.security import manager
     m = manager()
     user = m.current_user
@@ -239,16 +237,17 @@ class GraphProvider(ADataSetProvider):
       return None
 
     if id is None:
-      id = _generate_id(parsed.get('name',''))
+      id = _generate_id(parsed.get('name', ''))
 
     graph = MongoGraph.create(parsed, user, id, self.db)
 
     return graph
 
+
 def create():
   return GraphProvider()
 
-#CLEAR DB:
-#bash: mongo:
+# CLEAR DB:
+# bash: mongo:
 # use graph;
 # db.dropDatabase();
