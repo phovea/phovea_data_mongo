@@ -1,6 +1,6 @@
 {
   "generator-phovea": {
-    "type": "server",
+    "type": "slib",
     "name": "phovea_data_mongo",
     "author": "The Caleydo Team",
     "githubAccount": "phovea",
