@@ -1,4 +1,4 @@
 {
-  "host": "localhost",
+  "host": "mongo",
   "port": 27017
 }
