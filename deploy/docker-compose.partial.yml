@@ -4,4 +4,4 @@ services:
     links:
     - db_mongo:mongo
   db_mongo:
-    image: mongo
+    image: mongo:3.2
