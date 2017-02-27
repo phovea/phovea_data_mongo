@@ -2,7 +2,7 @@ from phovea_server.dataset_def import ADataSetProvider
 import phovea_server.graph
 
 
-class MongoGraph(phovea_server.graph.Graph):
+class MongoGraph(phovea_server.graph.AGraph):
   def __init__(self, entry, db):
     super(MongoGraph, self).__init__(entry['name'], 'mongodb', entry.get('id', None), entry.get('attrs', None))
     self._entry = entry
