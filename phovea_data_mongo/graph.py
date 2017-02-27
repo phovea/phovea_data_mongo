@@ -30,14 +30,13 @@ class MongoGraph(phovea_server.graph.AGraph):
     #  other_data = dict()
 
     import datetime
-    entry = dict(
-      name=data['name'],
-      description=data.get('description', ''),
-      creator=user.name,
-      nnodes=len(data['nodes']),
-      nedges=len(data['edges']),
-      attrs=data.get('attrs', {}),
-      ts=datetime.datetime.utcnow())
+    entry = dict(name=data['name'],
+                 description=data.get('description', ''),
+                 creator=user.name,
+                 nnodes=len(data['nodes']),
+                 nedges=len(data['edges']),
+                 attrs=data.get('attrs', {}),
+                 ts=datetime.datetime.utcnow())
 
     if 'group' in data:
       entry['group'] = data['group']
@@ -47,10 +46,9 @@ class MongoGraph(phovea_server.graph.AGraph):
     if id is not None:
       entry['id'] = id
 
-    data_entry = dict(
-      nodes=data['nodes'],
-      edges=data['edges']
-    )
+    data_entry = dict(nodes=data['nodes'],
+                      edges=data['edges']
+                      )
     data_id = db.graph_data.insert_one(data_entry).inserted_id
 
     entry['refid'] = str(data_id)
