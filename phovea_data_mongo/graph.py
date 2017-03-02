@@ -207,7 +207,7 @@ class GraphProvider(ADataSetProvider):
 
     from pymongo import MongoClient
     self.client = MongoClient(c.host, c.port)
-    self.db = self.client.graph
+    self.db = self.client[c.db]
 
   @property
   def entries(self):
