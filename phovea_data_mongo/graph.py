@@ -2,7 +2,7 @@ from phovea_server.dataset_def import ADataSetProvider
 import phovea_server.graph
 
 
-class MongoGraph(phovea_server.graph.Graph):
+class MongoGraph(phovea_server.graph.AGraph):
   def __init__(self, entry, db):
     super(MongoGraph, self).__init__(entry['name'], 'mongodb', entry.get('id', None), entry.get('attrs', None))
     self._entry = entry
@@ -30,22 +30,25 @@ class MongoGraph(phovea_server.graph.Graph):
     #  other_data = dict()
 
     import datetime
-    entry = dict(
-        name=data['name'],
-        description=data.get('description', ''),
-        creator='unknown' if user.is_anonymous else user.name,
-        nnodes=len(data['nodes']),
-        nedges=len(data['edges']),
-        attrs=data.get('attrs', {}),
-        ts=datetime.datetime.utcnow())
+    entry = dict(name=data['name'],
+                 description=data.get('description', ''),
+                 creator=user.name,
+                 nnodes=len(data['nodes']),
+                 nedges=len(data['edges']),
+                 attrs=data.get('attrs', {}),
+                 ts=datetime.datetime.utcnow())
+
+    if 'group' in data:
+      entry['group'] = data['group']
+    if 'permissions' in data:
+      entry['permissions'] = data['permissions']
 
     if id is not None:
       entry['id'] = id
 
-    data_entry = dict(
-        nodes=data['nodes'],
-        edges=data['edges']
-    )
+    data_entry = dict(nodes=data['nodes'],
+                      edges=data['edges']
+                      )
     data_id = db.graph_data.insert_one(data_entry).inserted_id
 
     entry['refid'] = str(data_id)
@@ -86,6 +89,10 @@ class MongoGraph(phovea_server.graph.Graph):
     if self._entry is not None:
       r['description'] = self._entry['description']
       r['creator'] = self._entry['creator']
+      if 'group' in self._entry:
+        r['group'] = self._entry['group']
+      if 'permissions' in self._entry:
+        r['permissions'] = self._entry['permissions']
       r['ts'] = self._entry['ts']
 
     return r
@@ -120,7 +127,8 @@ class MongoGraph(phovea_server.graph.Graph):
     # remove node and all associated edges
     self._db.graph_data.update(self._find_data, {'$pull': dict(nodes=dict(id=id))}, multi=False)
 
-    self._db.graph_data.update(self._find_data, {'$pull': dict(edges={'$or': [dict(source=id), dict(target=id)]})}, multi=True)
+    self._db.graph_data.update(self._find_data, {'$pull': dict(edges={'$or': [dict(source=id), dict(target=id)]})},
+                               multi=True)
 
     if self._edges:
       self._edges = [e for e in self._edges if e.source != id and e.target != id]
@@ -209,27 +217,19 @@ class GraphProvider(ADataSetProvider):
     self.client = MongoClient(c.host, c.port)
     self.db = self.client[c.db]
 
-  @property
-  def entries(self):
-    return MongoGraph.list(self.db)
-
-  def __len__(self):
-    return len(self.entries)
-
   def __iter__(self):
-    return iter(self.entries)
+    return iter((f for f in MongoGraph.list(self.db) if f.can_read()))
 
   def remove(self, entry):
-    if isinstance(entry, MongoGraph) and entry.remove():
+    if isinstance(entry, MongoGraph) and entry.can_write() and entry.remove():
       return True
     return False
 
   def upload(self, data, files, id=None):
     if not data.get('type', 'unknown') == 'graph':
       return None  # can't handle
-    from phovea_server.security import manager
-    m = manager()
-    user = m.current_user
+    from phovea_server.security import current_user
+    user = current_user()
 
     parsed = phovea_server.graph.parse(data, files)
 
