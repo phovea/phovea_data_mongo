@@ -98,6 +98,8 @@ class MongoGraph(phovea_server.graph.AGraph):
     return r
 
   def add_node(self, data):
+    if not self.can_write():
+      return False
     self._db.graph.update(self._find_me, {'$inc': dict(nnodes=1)})
     self._db.graph_data.update(self._find_data, {'$push': dict(nodes=data)})
     self._entry['nnodes'] += 1
@@ -106,6 +108,8 @@ class MongoGraph(phovea_server.graph.AGraph):
     return True
 
   def update_node(self, data):
+    if not self.can_write():
+      return False
     q = self._find_data.copy()
     q['nodes.id'] = data['id']
     self._db.graph_data.update(q, {'$set': {'nodes.$.attrs': data.get('attrs', {})}})
@@ -120,6 +124,8 @@ class MongoGraph(phovea_server.graph.AGraph):
     return True
 
   def remove_node(self, id):
+    if not self.can_write():
+      return False
     if self._nodes:
       n = self.get_node(id)
       self._nodes.remove(n)
@@ -153,6 +159,8 @@ class MongoGraph(phovea_server.graph.AGraph):
     return None
 
   def clear(self):
+    if not self.can_write():
+      return False
     self._db.graph.update(self._find_me, {'$set': dict(nnodes=0, nedges=0)})
     self._db.graph_data.update(self._find_data, {'$set': dict(nodes=[], edges=[])})
     self._nodes = None
@@ -162,6 +170,8 @@ class MongoGraph(phovea_server.graph.AGraph):
     return True
 
   def add_edge(self, data):
+    if not self.can_write():
+      return False
     self._db.graph.update(self._find_me, {'$inc': dict(nedges=1)})
     self._db.graph_data.update(self._find_data, {'$push': dict(edges=data)})
     self._entry['nedges'] += 1
@@ -171,6 +181,8 @@ class MongoGraph(phovea_server.graph.AGraph):
     return True
 
   def update_edge(self, data):
+    if not self.can_write():
+      return False
     q = self._find_data.copy()
     q['edges.id'] = data['id']
     self._db.graph_data.update(q, {'$set': {'edges.$.attrs': data.get('attrs', {})}})
@@ -185,6 +197,8 @@ class MongoGraph(phovea_server.graph.AGraph):
     return True
 
   def remove_edge(self, id):
+    if not self.can_write():
+      return False
     if self._edges:
       n = self.get_edge(id)
       self._edges.remove(n)
@@ -194,6 +208,8 @@ class MongoGraph(phovea_server.graph.AGraph):
     return True
 
   def remove(self):
+    if not self.can_write():
+      return False
     self._db.graph.remove(self._find_me)
     self._db.graph_data.remove(self._find_data)
     self._nodes = None
@@ -211,9 +227,10 @@ def _generate_id(basename):
 class GraphProvider(ADataSetProvider):
   def __init__(self):
     import phovea_server.config
+    from pymongo import MongoClient
+
     c = phovea_server.config.view('phovea_data_mongo')
 
-    from pymongo import MongoClient
     self.client = MongoClient(c.host, c.port)
     self.db = self.client[c.db]
 
