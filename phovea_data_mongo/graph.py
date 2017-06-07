@@ -218,6 +218,20 @@ class MongoGraph(phovea_server.graph.AGraph):
     self._entry['nedges'] = 0
     return True
 
+  def modify(self, args, files):
+    if not self.can_write():
+      return False
+    op = args.get('operation', 'setmetadata')
+    if op == 'setmetadata':
+      changes = {}
+      for key in ['name', 'description', 'group', 'permissions', 'attrs']:
+        if key in args:
+          self._entry[key] = changes[key] = args[key]
+      self.name = self._entry['name']
+      self._db.graph.update(self._find_me, {'$set': changes}, upsert=False)
+      return True
+    return False
+
 
 def _generate_id(basename):
   import phovea_server.util
