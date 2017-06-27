@@ -235,7 +235,7 @@ class MongoGraph(phovea_server.graph.AGraph):
       for item in items:
         item_type = item['type']
         item_op = item['op']
-        item_id = item.get('id',None)
+        item_id = item.get('id', None)
         item_desc = item.get('desc', None)
         if op == 'remove':
           if not getattr(self, 'remove_' + item_type)(item_id):
