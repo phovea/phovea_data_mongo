@@ -238,9 +238,12 @@ class MongoGraph(phovea_server.graph.AGraph):
         item_id = item.get('id',None)
         item_desc = item.get('desc', None)
         if op == 'remove':
-          return getattr(self, 'remove_' + item_type)(item_id)
+          if not getattr(self, 'remove_' + item_type)(item_id):
+            return False
         else:
-          return getattr(self, item_op + '_' + item_type)(item_desc)
+          if not getattr(self, item_op + '_' + item_type)(item_desc):
+            return False
+      return True
     return False
 
 
