@@ -230,6 +230,17 @@ class MongoGraph(phovea_server.graph.AGraph):
       self.name = self._entry['name']
       self._db.graph.update(self._find_me, {'$set': changes}, upsert=False)
       return True
+    elif op == 'batch':
+      items = args.get('items', [])
+      for item in items:
+        item_type = item['type']
+        item_op = item['op']
+        item_id = item.get('id',None)
+        item_desc = item.get('desc', None)
+        if op == 'remove':
+          return getattr(self, 'remove_' + item_type)(item_id)
+        else:
+          return getattr(self, item_op + '_' + item_type)(item_desc)
     return False
 
 
