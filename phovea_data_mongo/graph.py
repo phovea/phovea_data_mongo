@@ -42,7 +42,8 @@ class MongoGraph(phovea_server.graph.AGraph):
       entry['group'] = data['group']
     if 'permissions' in data:
       entry['permissions'] = data['permissions']
-
+    if 'buddies' in data:
+      entry['buddies'] = data['buddies']
     if id is not None:
       entry['id'] = id
 
@@ -93,6 +94,8 @@ class MongoGraph(phovea_server.graph.AGraph):
         r['group'] = self._entry['group']
       if 'permissions' in self._entry:
         r['permissions'] = self._entry['permissions']
+      if 'buddies' in self._entry:
+        r['buddies'] = self._entry['buddies']
       r['ts'] = self._entry['ts']
 
     return r
@@ -224,7 +227,7 @@ class MongoGraph(phovea_server.graph.AGraph):
     op = args.get('operation', 'setmetadata')
     if op == 'setmetadata':
       changes = {}
-      for key in ['name', 'description', 'group', 'permissions', 'attrs']:
+      for key in ['name', 'description', 'group', 'permissions', 'buddies', 'attrs']:
         if key in args:
           self._entry[key] = changes[key] = args[key]
       self.name = self._entry['name']
