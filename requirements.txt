@@ -1,2 +1,2 @@
 pymongo==3.0.3
-phovea_server>=2.3.0,<2.4.0
+-e git+https://github.com/phovea/phovea_server.git@develop#egg=phovea_server
