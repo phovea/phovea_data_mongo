@@ -23,6 +23,12 @@
       "requirements": [],
       "debianPackages": [],
       "redhatPackages": []
+    },
+    "promptValues": {
+      "authorName": "The Caleydo Team",
+      "authorEmail": "contact@caleydo.org",
+      "authorUrl": "https://caleydo.org",
+      "githubAccount": "phovea"
     }
   }
 }
