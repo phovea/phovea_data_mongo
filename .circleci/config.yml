@@ -5,7 +5,7 @@ jobs:
     docker:
       - image: circleci/python:3.7-buster-node-browsers
         environment:
-          NODE_VERSION: "12.13.1" # requires full version including patch version
+          NODE_VERSION: "12.13.1" # requires full version including patch version (see https://nodejs.org/dist/)
     steps:
       - checkout
       - run:
