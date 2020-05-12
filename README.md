@@ -1,5 +1,7 @@
-phovea_data_mongo [![Phovea][phovea-image]][phovea-url] [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
+phovea_data_mongo 
 =====================
+[![Phovea][phovea-image]][phovea-url] [![Build Status][circleci-image]][circleci-url] 
+
 
 Data provider plugin for loading (graph) data stored in a [MongoDB](https://www.mongodb.com/).
 
@@ -36,9 +38,5 @@ This repository is part of **[Phovea](http://phovea.caleydo.org/)**, a platform 
 
 [phovea-image]: https://img.shields.io/badge/Phovea-Server%20Plugin-10ACDF.svg
 [phovea-url]: https://phovea.caleydo.org
-[npm-image]: https://badge.fury.io/js/phovea_data_mongo.svg
-[npm-url]: https://npmjs.org/package/phovea_data_mongo
-[circleci-image]: https://circleci.com/gh/phovea/phovea_data_mongo?style=shield
+[circleci-image]: https://circleci.com/gh/phovea/phovea_data_mongo.svg?style=shield
 [circleci-url]: https://circleci.com/gh/phovea/phovea_data_mongo
-[daviddm-image]: https://david-dm.org/phovea/phovea_data_mongo/status.svg
-[daviddm-url]: https://david-dm.org/phovea/phovea_data_mongo
