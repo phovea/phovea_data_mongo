@@ -1,2 +1,2 @@
 pymongo~=3.11.1
--e git+https://github.com/phovea/phovea_server.git@develop#egg=phovea_server
+phovea_server>=release-7.0.0,<NaN.0.0
