@@ -1,2 +1,2 @@
-pymongo~=3.10.1
-phovea_server>=6.0.0,<7.0.0
+pymongo~=3.11.1
+phovea_server>=7.0.0,<8.0.0
