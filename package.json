@@ -2,7 +2,7 @@
   "name": "phovea_data_mongo",
   "description": "Data provider plugin for loading graph data stored in a MongoDB.",
   "homepage": "https://phovea.caleydo.org",
-  "version": "7.0.0",
+  "version": "7.0.1-SNAPSHOT",
   "author": {
     "name": "The Caleydo Team",
     "email": "contact@caleydo.org",
